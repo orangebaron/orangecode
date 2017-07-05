@@ -1,0 +1,2 @@
+{example code that repeats what the user inputs};
+while~[true,{println~input~()}]
