@@ -614,6 +614,14 @@ if true:
 				else:
 					printedVals.append(casted.value)
 			return noneObj()
+		def Println(_,arg,__):
+			casted=arg.getString('cast').run(strObj('string'),arg)
+			if type(casted) is strObj:
+				if shouldPrint:
+					print(casted.value)
+				else:
+					printedVals.append(casted.value)
+			return noneObj()
 		def wait(_,arg,__):
 			casted=arg.getString('cast').run(strObj('number'),arg)
 			if type(casted) is numObj:
@@ -673,6 +681,7 @@ if true:
 		defaultVariables.append((strObj('greaterequal',None,True),functionObj(greaterequal)))
 		defaultVariables.append((strObj('lessequal',None,True),functionObj(lessequal)))
 		defaultVariables.append((strObj('print',None,True),functionObj(Print)))
+		defaultVariables.append((strObj('println',None,True),functionObj(Println)))
 		defaultVariables.append((strObj('wait',None,True),functionObj(wait)))
 		defaultVariables.append((strObj('if',None,True),functionObj(If)))
 		defaultVariables.append((strObj('while',None,True),functionObj(While)))
@@ -745,7 +754,7 @@ if testingMode:
 		print(colored("Success!","green"))
 	else:
 		while True:
-			print(colored(str(testsFailed)+" TEST(S) FAILED REEEEEEEEEEEEEEE","red"))
+			print(colored(str(testsFailed)+" TEST(S) FAILED","red"))
 			print(colored("The following tests failed:","red"))
 			testsFailed2=[]
 			for tab in testVals:
