@@ -1,5 +1,5 @@
 '''
-    orange_code_terminal_v1.py; orange_code version 1, a very early version, is capable of running basic orange_code programs.
+    orange_code version 1, a very early version, is capable of running basic orange_code programs.
     Copyright (C) 2017  Sam Alws
 
     This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 '''
 
 
-#This program can run orange_code programs in the terminal.
+#This library can be used to run orange_code programs.
 
 ####SETUP####
 import time
@@ -60,8 +60,13 @@ orderOfOperations.append('!')
 def tuplizeExpression(expression): #breaks a string expression into its tuple of its parts
 	specialCharacters=['~','`','!','%','&','*','-','+','=','|','<','>','/']
 	correspondingCharacters={'(':')','{':'}','[':']','"':'"','\'':'\''}
-	returnValue=[expression[0]] #start as a list bc tuples are annoying to work with
-	for char in expression[1:]:
+	startLoc=0
+	while expression[startLoc]==' ' or expression[startLoc]=='\t' or expression[startLoc]=='\n':
+		startLoc+=1
+		if startLoc>=len(expression)-1:
+			return ''
+	returnValue=[expression[startLoc]] #start as a list bc tuples are annoying to work with
+	for char in expression[startLoc+1:]:
 		topReturnValue = returnValue[len(returnValue)-1]
 		firstCharacter=topReturnValue[0]
 		if firstCharacter in correspondingCharacters: #(asdf), [asdf], "asdf", etc
@@ -276,7 +281,7 @@ class codeObj:
 			if ender==',':
 				self.__append(finalVal)
 		return noneObj()
-####BASIC OBJECTS####]
+####BASIC OBJECTS####
 #value
 def valueEqualEqual(_,arg,creator):
 	if type(arg) is type(creator):
