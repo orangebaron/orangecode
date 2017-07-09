@@ -63,8 +63,8 @@ def tuplizeExpression(expression): #breaks a string expression into its tuple of
 	startLoc=0
 	while expression[startLoc]==' ' or expression[startLoc]=='\t' or expression[startLoc]=='\n':
 		startLoc+=1
-		if startLoc>=len(expression)-1:
-			return ''
+		if startLoc>=len(expression):
+			return ('',)
 	returnValue=[expression[startLoc]] #start as a list bc tuples are annoying to work with
 	for char in expression[startLoc+1:]:
 		topReturnValue = returnValue[len(returnValue)-1]
@@ -175,12 +175,12 @@ class codeObj:
 				break
 			elemNum+=1
 		self.setVal(numObj(elemNum,self),obj)
-	def __evaluate(self,obj):
+	def evaluate(self,obj):
 		if type(obj) is str:
 			return self.getString(obj)
 		else:
-			element0=self.__evaluate(obj[0])
-			element1=self.__evaluate(obj[1])
+			element0=self.evaluate(obj[0])
+			element1=self.evaluate(obj[1])
 			return element0.getVal(strObj(fixString(obj[2]))).run(element1,element0)
 	def removeVal(self,index):
 		for entry in self.variables:
@@ -273,7 +273,8 @@ class codeObj:
 		location=0
 		while location!=-1 and location<len(self.code):
 			(expression,ender,location)=nextProcessedExpression(self.code,location)
-			finalVal=self.__evaluate(expression)
+			if len(expression)>0:
+				finalVal=self.evaluate(expression)
 			if returnedValue:
 				a=returnedValue
 				returnedValue=False
@@ -326,43 +327,43 @@ def numCast(_,arg,creator):
 def numPlus(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value+arg.value)
+		return numObj(creator.value+casted.value)
 	else:
 		return noneObj()
 def numMinus(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value-arg.value)
+		return numObj(creator.value-casted.value)
 	else:
 		return noneObj()
 def numAsterisk(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value*arg.value)
+		return numObj(creator.value*casted.value)
 	else:
 		return noneObj()
 def numSlash(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value/arg.value)
+		return numObj(creator.value/casted.value)
 	else:
 		return noneObj()
 def numAsteriskAsterisk(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value**arg.value)
+		return numObj(creator.value**casted.value)
 	else:
 		return noneObj()
 def numSlashSlash(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value//arg.value)
+		return numObj(creator.value//casted.value)
 	else:
 		return noneObj()
 def numPercent(_,arg,creator):
 	casted=arg.getString('cast').run(strObj('number'),arg)
 	if type(casted) is numObj:
-		return numObj(creator.value%arg.value)
+		return numObj(creator.value%casted.value)
 	else:
 		return noneObj()
 def numExclamation(_,__,creator):
@@ -378,8 +379,8 @@ class numObj(valueObj):
 		self.variables.append((strObj('asteriskasterisk'),functionObj(numAsteriskAsterisk,self)))
 		self.variables.append((strObj('slashslash'),functionObj(numSlashSlash,self)))
 		self.variables.append((strObj('percent'),functionObj(numPercent,self)))
-		self.variables.append((strObj('exclamation'),functionObj(numExclamation,self)))
 		self.variables[1]=(self.variables[1][0],functionObj(numCast,self))
+		self.variables[2]=(self.variables[2][0],functionObj(numExclamation,self))
 #string
 def strCast(_,arg,creator):
 	if not type(arg) is strObj:
@@ -394,8 +395,9 @@ def strCast(_,arg,creator):
 		except ValueError:
 			return numObj(0.0)
 def strPlus(_,arg,creator):
-	if type(arg) is strObj:
-		return strObj(creator.value+arg.value)
+	casted=arg.getString('cast').run(strObj('string'),arg)
+	if type(casted) is strObj:
+		return strObj(creator.value+casted.value)
 	else:
 		return noneObj()
 def strMinus(_,arg,creator):
@@ -609,7 +611,14 @@ def If(_,arg,__):
 	return noneObj()
 def While(_,arg,__):
 	while True:
-		condition=arg.getVal(numObj(0.0)).getString('cast').run(strObj('boolean'),arg.getVal(numObj(0.0)))
+		strToRun=arg.getVal(numObj(0.0)).getString('cast').run(strObj('string'),arg.getVal(numObj(0.0)))
+		if type(strToRun) is strObj:
+			runObj=codeObj()
+			condition=self.evaluate(processExpression(strToRun.value))
+		else:
+			error("Supplied argument 0 was not a string.")
+			return noneObj()
+		condition=condition.getString('cast').run(strObj('boolean'),condition)
 		if type(condition) is booleanObj and condition.value:
 			arg.getVal(numObj(1.0)).run(noneObj)
 		else:
@@ -641,13 +650,13 @@ def Assert(_,arg,__):
 	return noneObj()
 defaultVariables.append((strObj('equalequal',None,True),functionObj(equalequal)))
 defaultVariables.append((strObj('cast',None,True),functionObj(cast)))
+defaultVariables.append((strObj('exclamation',None,True),functionObj(Not)))
 defaultVariables.append((strObj('exclamationequal',None,True),functionObj(exclamationequal)))
 defaultVariables.append((strObj('exclamationequalequal',None,True),functionObj(exclamationequal)))
 defaultVariables.append((strObj('equalequalequal',None,True),functionObj(equalequal)))
 defaultVariables.append((strObj('tilde',None,True),functionObj(tilde)))
 defaultVariables.append((strObj('backtickperiod',None,True),functionObj(backtickperiod)))
 defaultVariables.append((strObj('backtickhashtag',None,True),functionObj(backtickhashtag)))
-defaultVariables.append((strObj('exclamation',None,True),functionObj(Not)))
 defaultVariables.append((strObj('and',None,True),functionObj(And)))
 defaultVariables.append((strObj('pipe',None,True),functionObj(Or)))
 defaultVariables.append((strObj('exclamationand',None,True),functionObj(nand)))
