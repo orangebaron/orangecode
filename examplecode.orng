@@ -1,0 +1,18 @@
+{example code to find fibonacci numbers};
+println~"This program calculates the nth fibonacci number. Which one would you like to find?";
+0+(input~()),
+if~[$$.0<=0,{println~"0"}];
+if~[$$.0>0,{
+	$$$.0,
+	0,
+	1,
+	while~["$$.0>1",{
+		#a=$$$.2;
+		$$$#2=$$$.1+$$$.2;
+		$$$#1=a;
+		$$$#0-=1;
+	}];
+	println~.2;
+}];
+println~"Press enter to exit.";
+input~();
