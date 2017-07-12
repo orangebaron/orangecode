@@ -1,0 +1,39 @@
+DOCUMENTATION TIME
+aka when this readme stops being tryhard
+
+# How Thingies Work
+A line of orange_code is a bunch of object paths, literals, and ()/[]/{}-enclosed code separated by operators. For example, in a.b.c.x+"abc"/('this'+is+code), a.b.c.x is an object path, "abc" is a string literal, and ('this'+is+code) is code enclosed with parentheses. The operators in this example are + and /
+# Order of Operations
+Orange_code breaks up a line according to the order of operations. For example, since ~ has higher priority in the order of operations than /, and / higher than +, 1~2+3/4 is the same as 1~((2+3)/4). The full order of operations is (from highest to lowest priority; they all have single quotes around them because I'm a lazy bastard): '=', '~', '===', '~==', '**==', '//==', '*==', '/==', '%==', '+==', '-==', '&==', '|==', '!&==', '!|==', '>==', '<==', '!==', '==', '~=', '**=', '//=', '*=', '/=', '%=', '+=', '-=', '&=', '|=', '!&=', '!|=', '>=', '<=', '!=', '**', '//', '*', '/', '%', '+', '-', '&', '|', '!&', '!|', '>', '<', '`#', '`.', '!'
+! is different from the rest in that it goes before a variable; for example !a is valid, not a!b
+# Primitive Types
+There are 5 primitive types: numbers (always stored as floats in memory), strings, booleans, none, and pointers. Pointers refer to an object's descendant, and have 2 important variables: obj and index; the pointer refers to obj.index.
+To enter a number, put a number with an optional decimal. Negative signs can't be used (use a ! instead), nor does putting decimals without a 0 before them.
+For example: 8, 8.0, 6.5, 0.4, and !1 are valid, but not -1, .5, or -.5
+To enter a string, surround the string with double or single quotes. Escape characters can be used; \t is tab and \n is newline, and \ followed by any other character is just that character (eg '\x' is the same as 'x')
+Booleans are just true and false, and none is none.
+Pointers are entered using the # character; a pointer to a.b.c would be written as a.b#c
+# Self, Parent, and Arguments
+$ refers to self, and every dollar sign afterwards refers to 1 level up, so $ is self, $$ is self.parent, $$$ is self.parent.parent, etc.
+When a class is called (process described below), @ refers to the arguments passed to it.
+# (), [], {}
+(), [], and {} are the main way to make a new class.
+() creates a new object, evaluates the code within the ()s, and returns the 0th element; for example, ("abc") is the same as "abc" (for reasons described below, "abc" is put onto the object's 0th element)
+[] creates a new object, evaluates the code within the []s, and returns that object.
+{} creates a new object with code set to whatever is within the {}, and returns that object without evaluating the code. The object can be run afterwards using the ~ operator: {code}~1 runs "code" with @ set to 1.
+# Misc. Things
+To set a variable, pointers are used:
+#a=1;
+a#b=2;
+To end a line, use a semicolon or comma. A semicolon just ends the line, but a comma appends it onto the object that's running the code. If you end the code without a comma or semicolon, a comma is assumed:
+[775551467716;
+65,
+880654]
+The object would have a 65 at index 0 and a 880654 at index 1.
+To print something, call the built-in print class:
+print~"x";
+To take input, call the built-in input class:
+#a=input~();
+a is now set to whatever the user inputs.
+Comments can be done by making a code object with {} but ending with a semicolon so it's not ever evaluated (so what you put inside doesn't have to be valid orange_code):
+{I am a valid comment!!!!};
